@@ -15,7 +15,7 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://gray-tapir-174741.hostingersite.com';
     
     // Check if user is already logged in
     useEffect(() => {

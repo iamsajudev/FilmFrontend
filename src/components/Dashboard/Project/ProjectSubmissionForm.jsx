@@ -179,7 +179,7 @@ export default function ProjectSubmissionForm() {
 
             console.log('Submitting complete data:', submissionData);
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://gray-tapir-174741.hostingersite.com';
 
             const response = await fetch(`${API_URL}/api/projects`, {
                 method: "POST",

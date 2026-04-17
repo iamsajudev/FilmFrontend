@@ -30,7 +30,7 @@ export default function DashboardLayout({ children }) {
 
       if (token) {
         await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/logout`,
+          `${process.env.NEXT_PUBLIC_API_URL || "https://gray-tapir-174741.hostingersite.com"}/api/auth/logout`,
           {
             method: "POST",
             headers: {

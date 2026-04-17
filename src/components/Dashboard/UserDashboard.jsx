@@ -34,7 +34,7 @@ export default function UserDashboard() {
         try {
             const token = getToken();
             if (token) {
-                await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/logout`, {
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://gray-tapir-174741.hostingersite.com'}/api/auth/logout`, {
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${token}`,
