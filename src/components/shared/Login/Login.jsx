@@ -15,7 +15,7 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://skyblue-armadillo-710430.hostingersite.com';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     
     // Check if user is already logged in
     useEffect(() => {

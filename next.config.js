@@ -6,7 +6,7 @@ const nextConfig = {
         return [
             {
                 source: '/api/:path*',
-                destination: 'https://skyblue-armadillo-710430.hostingersite.com/api/:path*', // Proxy to your backend
+                destination: 'http://localhost:5000/api/:path*', // Proxy to your backend
             },
         ];
     },

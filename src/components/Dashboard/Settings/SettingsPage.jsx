@@ -72,7 +72,7 @@ const SettingsPage = () => {
                 return;
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://skyblue-armadillo-710430.hostingersite.com';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
             const response = await fetch(`${API_URL}/api/users/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -213,7 +213,7 @@ const SettingsPage = () => {
                 return;
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://skyblue-armadillo-710430.hostingersite.com';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
             
             // Prepare data for API
             const submitData = {
@@ -298,7 +298,7 @@ const SettingsPage = () => {
         
         try {
             const token = localStorage.getItem('token');
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://skyblue-armadillo-710430.hostingersite.com';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
             
             const response = await fetch(`${API_URL}/api/users/change-password`, {
                 method: 'PUT',
@@ -340,7 +340,7 @@ const SettingsPage = () => {
         
         try {
             const token = localStorage.getItem('token');
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://skyblue-armadillo-710430.hostingersite.com';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
             
             const response = await fetch(`${API_URL}/api/users/profile`, {
                 method: 'DELETE',

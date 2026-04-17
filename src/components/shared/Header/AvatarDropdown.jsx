@@ -89,7 +89,7 @@ const AvatarDropdown = () => {
             // Optional: Call logout API to invalidate token on server
             if (token) {
                 try {
-                    await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://skyblue-armadillo-710430.hostingersite.com'}/api/auth/logout`, {
+                    await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/logout`, {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${token}`,

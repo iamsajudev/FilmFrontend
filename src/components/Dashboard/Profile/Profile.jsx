@@ -98,7 +98,7 @@ const Profile = () => {
                 return;
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://skyblue-armadillo-710430.hostingersite.com';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
             const response = await fetch(`${API_URL}/api/users/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -287,7 +287,7 @@ const Profile = () => {
                 return;
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://skyblue-armadillo-710430.hostingersite.com';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
             // Prepare data for API - Make sure all fields are properly structured
             const submitData = {

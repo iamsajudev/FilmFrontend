@@ -11,7 +11,7 @@ const SubmissionsPage = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://skyblue-armadillo-710430.hostingersite.com';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     fetchSubmissions();
