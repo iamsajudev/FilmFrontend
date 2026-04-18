@@ -17,7 +17,7 @@ const AllProject = () => {
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState(null);
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://gray-tapir-174741.hostingersite.com';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us';
 
     useEffect(() => {
         fetchProjects();

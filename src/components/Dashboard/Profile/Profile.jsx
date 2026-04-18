@@ -98,7 +98,7 @@ const Profile = () => {
                 return;
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://gray-tapir-174741.hostingersite.com';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us';
             const response = await fetch(`${API_URL}/api/users/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -287,7 +287,7 @@ const Profile = () => {
                 return;
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://gray-tapir-174741.hostingersite.com';
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us';
 
             // Prepare data for API - Make sure all fields are properly structured
             const submitData = {

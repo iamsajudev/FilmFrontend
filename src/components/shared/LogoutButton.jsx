@@ -12,7 +12,7 @@ export default function LogoutButton() {
         
         // Optional: Call logout API if needed
         try {
-            await fetch('https://gray-tapir-174741.hostingersite.com/api/auth/logout', {
+            await fetch('https://server.nybff.us/api/auth/logout', {
                 method: 'POST',
             });
         } catch (error) {

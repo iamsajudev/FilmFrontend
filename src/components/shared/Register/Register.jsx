@@ -19,7 +19,7 @@ const Register = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://gray-tapir-174741.hostingersite.com';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us';
 
     useEffect(() => {
         const token = getToken();

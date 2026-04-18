@@ -4,6 +4,6 @@
   "installCommand": "npm install",
   "devCommand": "npm run dev",
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://gray-tapir-174741.hostingersite.com"
+    "NEXT_PUBLIC_API_URL": "https://server.nybff.us"
   }
 }

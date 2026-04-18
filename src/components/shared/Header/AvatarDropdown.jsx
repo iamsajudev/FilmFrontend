@@ -89,7 +89,7 @@ const AvatarDropdown = () => {
             // Optional: Call logout API to invalidate token on server
             if (token) {
                 try {
-                    await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://gray-tapir-174741.hostingersite.com'}/api/auth/logout`, {
+                    await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us'}/api/auth/logout`, {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${token}`,

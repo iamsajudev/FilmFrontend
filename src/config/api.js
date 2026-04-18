@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://gray-tapir-174741.hostingersite.com/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us/api';
 
 export const API_ENDPOINTS = {
     auth: {

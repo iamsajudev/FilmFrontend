@@ -6,7 +6,7 @@ const nextConfig = {
         return [
             {
                 source: '/api/:path*',
-                destination: 'https://gray-tapir-174741.hostingersite.com/api/:path*', // Proxy to your backend
+                destination: 'https://server.nybff.us/api/:path*', // Proxy to your backend
             },
         ];
     },
