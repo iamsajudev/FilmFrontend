@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
@@ -124,16 +125,17 @@ const getCountryCode = (countryName) => {
         }
     }
     
-    // Return null if no match found (Stripe can handle missing country)
     return null;
 };
 
 function PaymentForm({ formData, onSubmit, onPrev, isSubmitting }) {
+    const router = useRouter();
     const stripe = useStripe();
     const elements = useElements();
     const [error, setError] = useState("");
     const [processing, setProcessing] = useState(false);
     const [paymentSuccess, setPaymentSuccess] = useState(false);
+    const [redirectCountdown, setRedirectCountdown] = useState(3);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -183,7 +185,7 @@ function PaymentForm({ formData, onSubmit, onPrev, isSubmitting }) {
             const cardholderName = `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || formData.fullName || formData.name || 'Cardholder';
             const userEmail = formData.email || 'customer@example.com';
 
-            // Prepare billing details - only include fields that have valid values
+            // Prepare billing details
             const billingDetails = {
                 email: userEmail,
                 name: cardholderName,
@@ -204,7 +206,6 @@ function PaymentForm({ formData, onSubmit, onPrev, isSubmitting }) {
                 }
             }
             
-            // Only add address if at least one field has value
             if (Object.keys(address).length > 0) {
                 billingDetails.address = address;
             }
@@ -224,6 +225,17 @@ function PaymentForm({ formData, onSubmit, onPrev, isSubmitting }) {
                 setPaymentSuccess(true);
                 // Call the parent submit handler with payment intent ID
                 await onSubmit(paymentIntent.id);
+                
+                // Start countdown for redirect
+                let countdown = 3;
+                const interval = setInterval(() => {
+                    countdown--;
+                    setRedirectCountdown(countdown);
+                    if (countdown === 0) {
+                        clearInterval(interval);
+                        router.push('/projects');
+                    }
+                }, 1000);
             }
         } catch (err) {
             console.error("Payment error:", err);
@@ -235,13 +247,30 @@ function PaymentForm({ formData, onSubmit, onPrev, isSubmitting }) {
     if (paymentSuccess) {
         return (
             <div className="text-center py-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
                     <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Payment Successful!</h3>
-                <p className="text-gray-600">Your submission is being processed...</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Payment Successful! 🎉</h3>
+                <p className="text-gray-600 mb-4">Your submission has been received successfully.</p>
+                <div className="bg-blue-50 rounded-lg p-4 max-w-md mx-auto">
+                    <p className="text-sm text-blue-800">
+                        Redirecting to your projects page in <span className="font-bold">{redirectCountdown}</span> seconds...
+                    </p>
+                    <div className="w-full bg-blue-200 rounded-full h-1 mt-2">
+                        <div 
+                            className="bg-blue-600 h-1 rounded-full transition-all duration-1000"
+                            style={{ width: `${(3 - redirectCountdown) * 33.33}%` }}
+                        ></div>
+                    </div>
+                </div>
+                <button
+                    onClick={() => router.push('/projects')}
+                    className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
+                >
+                    Click here if not redirected automatically →
+                </button>
             </div>
         );
     }

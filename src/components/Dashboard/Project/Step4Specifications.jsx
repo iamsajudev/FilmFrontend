@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import CountrySelect from "../../Common/CountrySelect";
 
 export default function Step4Specifications({ formData, updateFormData, onNext, onPrev }) {
     const [errors, setErrors] = useState({});
@@ -66,14 +67,12 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
             current.push(type);
         }
         updateFormData({ projectTypes: current });
-        // Clear error for this field if exists
         if (errors.projectTypes) {
             setErrors({ ...errors, projectTypes: null });
         }
     };
 
     const handleRuntimeChange = (field, value) => {
-        // Ensure value is within bounds
         if (field === 'runtimeHours' && (parseInt(value) > 23 || parseInt(value) < 0)) return;
         if (field === 'runtimeMinutes' && (parseInt(value) > 59 || parseInt(value) < 0)) return;
         if (field === 'runtimeSeconds' && (parseInt(value) > 59 || parseInt(value) < 0)) return;
@@ -147,7 +146,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                             updateFormData({ genres: e.target.value });
                             if (errors.genres) setErrors({ ...errors, genres: null });
                         }}
-                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.genres ? 'border-red-500' : 'border-gray-300'
+                        className={`w-full px-4 py-2 border text-black rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.genres ? 'border-red-500' : 'border-gray-300'
                             }`}
                     >
                         <option value="">Select primary genre</option>
@@ -171,7 +170,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                             <select
                                 value={formData.runtimeHours}
                                 onChange={(e) => handleRuntimeChange('runtimeHours', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                             >
                                 {Array.from({ length: 24 }, (_, i) => (
                                     <option key={i} value={i.toString().padStart(2, '0')}>
@@ -185,7 +184,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                             <select
                                 value={formData.runtimeMinutes}
                                 onChange={(e) => handleRuntimeChange('runtimeMinutes', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                             >
                                 {Array.from({ length: 60 }, (_, i) => (
                                     <option key={i} value={i.toString().padStart(2, '0')}>
@@ -199,7 +198,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                             <select
                                 value={formData.runtimeSeconds}
                                 onChange={(e) => handleRuntimeChange('runtimeSeconds', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                             >
                                 {Array.from({ length: 60 }, (_, i) => (
                                     <option key={i} value={i.toString().padStart(2, '0')}>
@@ -220,7 +219,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                         type="date"
                         value={formData.completionDate}
                         onChange={(e) => updateFormData({ completionDate: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
 
@@ -233,38 +232,34 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                             type="text"
                             value={formData.productionBudget}
                             onChange={(e) => updateFormData({ productionBudget: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                             placeholder="e.g., $50,000"
                         />
                     </div>
 
+                    {/* Country of Origin - Updated to CountrySelect */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Country of Origin
-                        </label>
-                        <input
-                            type="text"
+                        <CountrySelect
                             value={formData.countryOfOrigin}
-                            onChange={(e) => updateFormData({ countryOfOrigin: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            placeholder="Country"
+                            onChange={(country) => updateFormData({ countryOfOrigin: country })}
+                            placeholder="Select country of origin"
+                            required={false}
                         />
+                        <p className="text-xs text-gray-500 mt-1">Where was this film produced?</p>
                     </div>
 
+                    {/* Country of Filming - Updated to CountrySelect */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Country of Filming
-                        </label>
-                        <input
-                            type="text"
+                        <CountrySelect
                             value={formData.countryOfFilming}
-                            onChange={(e) => updateFormData({ countryOfFilming: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            placeholder="Country"
+                            onChange={(country) => updateFormData({ countryOfFilming: country })}
+                            placeholder="Select country of filming"
+                            required={false}
                         />
+                        <p className="text-xs text-gray-500 mt-1">Where was this film shot?</p>
                     </div>
 
-                    {/* Primary Language - Changed to dropdown */}
+                    {/* Primary Language */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Primary Language <span className="text-red-500">*</span>
@@ -275,7 +270,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                                 updateFormData({ language: e.target.value });
                                 if (errors.language) setErrors({ ...errors, language: null });
                             }}
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.language ? 'border-red-500' : 'border-gray-300'
+                            className={`w-full px-4 py-2 text-black border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.language ? 'border-red-500' : 'border-gray-300'
                                 }`}
                         >
                             <option value="">Select primary language</option>
@@ -293,6 +288,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                         </p>
                     </div>
 
+                    {/* Shooting Format */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Shooting Format
@@ -300,7 +296,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                         <select
                             value={formData.shootingFormat}
                             onChange={(e) => updateFormData({ shootingFormat: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="">Select format</option>
                             {formatOptions.map((format) => (
@@ -309,6 +305,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                         </select>
                     </div>
 
+                    {/* Aspect Ratio */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Aspect Ratio
@@ -316,7 +313,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                         <select
                             value={formData.aspectRatio}
                             onChange={(e) => updateFormData({ aspectRatio: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         >
                             {aspectRatios.map((ratio) => (
                                 <option key={ratio} value={ratio}>{ratio}</option>
@@ -324,6 +321,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                         </select>
                     </div>
 
+                    {/* Film Color */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Film Color
@@ -331,7 +329,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                         <select
                             value={formData.filmColor}
                             onChange={(e) => updateFormData({ filmColor: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="Color">Color</option>
                             <option value="Black and White">Black and White</option>
@@ -339,6 +337,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                         </select>
                     </div>
 
+                    {/* Student Project */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Student Project?
@@ -346,13 +345,14 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                         <select
                             value={formData.studentProject}
                             onChange={(e) => updateFormData({ studentProject: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="No">No</option>
                             <option value="Yes">Yes</option>
                         </select>
                     </div>
 
+                    {/* First Time Filmmaker */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             First Time Filmmaker?
@@ -360,7 +360,7 @@ export default function Step4Specifications({ formData, updateFormData, onNext, 
                         <select
                             value={formData.firstTimeFilmmaker}
                             onChange={(e) => updateFormData({ firstTimeFilmmaker: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="No">No</option>
                             <option value="Yes">Yes</option>
