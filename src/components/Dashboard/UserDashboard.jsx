@@ -41,7 +41,7 @@ export default function UserDashboard() {
                 if (response.ok) {
                     const data = await response.json();
                     const freshUserData = data.data || data.user || data;
-                    
+
                     const updatedUserData = {
                         id: freshUserData.id || freshUserData._id,
                         name: freshUserData.name || freshUserData.fullName,
@@ -60,7 +60,7 @@ export default function UserDashboard() {
                         skills: freshUserData.skills,
                         experience: freshUserData.experience
                     };
-                    
+
                     // Update localStorage
                     localStorage.setItem('user', JSON.stringify(updatedUserData));
                     userData = updatedUserData;
@@ -137,15 +137,63 @@ export default function UserDashboard() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading dashboard...</p>
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+                <div className="container mx-auto px-4 py-8 max-w-7xl">
+                    {/* Header Skeleton */}
+                    <div className="mb-8">
+                        <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse mb-2"></div>
+                        <div className="h-4 w-96 bg-gray-200 rounded-lg animate-pulse"></div>
+                    </div>
+
+                    {/* Stats Cards Skeleton */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="w-12 h-12 bg-gray-200 rounded-xl animate-pulse"></div>
+                                    <div className="w-16 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+                                </div>
+                                <div className="h-8 w-24 bg-gray-200 rounded-lg animate-pulse mb-2"></div>
+                                <div className="h-4 w-32 bg-gray-200 rounded-lg animate-pulse"></div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Main Content Skeleton */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Left Column Skeleton */}
+                        <div className="lg:col-span-1 space-y-6">
+                            <div className="bg-white rounded-2xl p-6 shadow-sm">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse"></div>
+                                    <div className="flex-1">
+                                        <div className="h-5 w-32 bg-gray-200 rounded-lg animate-pulse mb-2"></div>
+                                        <div className="h-4 w-24 bg-gray-200 rounded-lg animate-pulse"></div>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="h-4 w-full bg-gray-200 rounded-lg animate-pulse"></div>
+                                    <div className="h-4 w-3/4 bg-gray-200 rounded-lg animate-pulse"></div>
+                                    <div className="h-4 w-1/2 bg-gray-200 rounded-lg animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Column Skeleton */}
+                        <div className="lg:col-span-2 space-y-6">
+                            <div className="bg-white rounded-2xl p-6 shadow-sm">
+                                <div className="h-6 w-32 bg-gray-200 rounded-lg animate-pulse mb-4"></div>
+                                <div className="space-y-3">
+                                    <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+                                    <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
     }
-
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="container mx-auto px-4 py-8">
@@ -158,8 +206,8 @@ export default function UserDashboard() {
                                 <div className="relative inline-block">
                                     <div className="w-24 h-24 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg overflow-hidden">
                                         {user?.avatar ? (
-                                            <img 
-                                                src={user.avatar} 
+                                            <img
+                                                src={user.avatar}
                                                 alt={user.name || 'User'}
                                                 className="w-full h-full object-cover"
                                                 onError={(e) => {
@@ -201,11 +249,10 @@ export default function UserDashboard() {
                                         key={item.id}
                                         href={item.href}
                                         onClick={() => setActiveTab(item.id)}
-                                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
-                                            activeTab === item.id
+                                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${activeTab === item.id
                                                 ? 'bg-red-50 text-red-700 shadow-sm'
                                                 : 'text-gray-700 hover:bg-gray-50 hover:text-red-600'
-                                        }`}
+                                            }`}
                                     >
                                         <span className="text-xl">{item.icon}</span>
                                         <span className="text-sm font-medium flex-1">
@@ -248,8 +295,8 @@ export default function UserDashboard() {
                                 </div>
                                 {user?.avatar && (
                                     <div className="w-16 h-16 rounded-full overflow-hidden hidden md:block">
-                                        <img 
-                                            src={user.avatar} 
+                                        <img
+                                            src={user.avatar}
                                             alt={user.name}
                                             className="w-full h-full object-cover"
                                         />
