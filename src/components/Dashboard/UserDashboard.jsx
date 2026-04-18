@@ -30,7 +30,7 @@ export default function UserDashboard() {
 
             // Try to fetch fresh user data from API
             try {
-                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us';
                 const response = await fetch(`${API_URL}/api/users/profile`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -111,7 +111,7 @@ export default function UserDashboard() {
         try {
             const token = getToken();
             if (token) {
-                await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/logout`, {
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us'}/api/auth/logout`, {
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${token}`,
