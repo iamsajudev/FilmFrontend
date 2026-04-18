@@ -178,11 +178,7 @@ export const metadata: Metadata = {
   category: "Entertainment",
   classification: "Film Festival",
   
-  // RSS feeds
-  feed: {
-    rss2: "/feed.xml",
-    atom: "/atom.xml",
-  },
+
   
   // Bookmark
   bookmarks: ["https://nybff.us"],
@@ -205,14 +201,6 @@ export const metadata: Metadata = {
   // Asset links
   assets: ["https://nybff.us/assets"],
   
-  // Social media profiles
-  socials: {
-    twitter: "@nybff",
-    facebook: "nybff",
-    instagram: "nybff",
-    linkedin: "company/nybff",
-    youtube: "@nybff",
-  },
 };
 
 export default function RootLayout({
