@@ -1,18 +1,23 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getToken, getUser, clearAuthData, subscribeToUserUpdates, getUserAvatar, getUserDisplayName, getUserInitials } from '@/utils/auth';
+import { getToken, getUser, clearAuthData, subscribeToUserUpdates, getUserInitials } from '@/utils/auth';
 
 export default function UserDashboard() {
     const router = useRouter();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
+    const [connectionError, setConnectionError] = useState(false);
+    const abortControllerRef = useRef(null);
 
     useEffect(() => {
         let isMounted = true;
+        
+        // Create abort controller for this effect
+        abortControllerRef.current = new AbortController();
 
         const loadUserData = async () => {
             const token = getToken();
@@ -21,22 +26,44 @@ export default function UserDashboard() {
             console.log('=== Dashboard Debug Info ===');
             console.log('Token:', token ? 'Present' : 'Missing');
             console.log('User Data:', userData);
+            console.log('API URL:', process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us');
 
             if (!token || !userData) {
                 console.log('No auth data, redirecting to login');
-                router.replace('/login');
+                if (isMounted) {
+                    router.replace('/login');
+                }
                 return;
             }
 
-            // Try to fetch fresh user data from API
+            // Set user data from localStorage first
+            if (isMounted) {
+                setUser(userData);
+                setLoading(false);
+            }
+
+            // Try to fetch fresh user data from API (non-blocking)
             try {
                 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us';
+                
+                // Add timeout to fetch
+                const timeoutId = setTimeout(() => {
+                    if (abortControllerRef.current && isMounted) {
+                        abortControllerRef.current.abort();
+                    }
+                }, 10000);
+
                 const response = await fetch(`${API_URL}/api/users/profile`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    signal: abortControllerRef.current.signal
                 });
+
+                clearTimeout(timeoutId);
+
+                if (!isMounted) return;
 
                 if (response.ok) {
                     const data = await response.json();
@@ -63,16 +90,28 @@ export default function UserDashboard() {
 
                     // Update localStorage
                     localStorage.setItem('user', JSON.stringify(updatedUserData));
-                    userData = updatedUserData;
-                    console.log('Fetched fresh user data:', userData);
+                    
+                    if (isMounted) {
+                        setUser(updatedUserData);
+                        setConnectionError(false);
+                    }
+                    console.log('Fetched fresh user data:', updatedUserData);
                 }
             } catch (error) {
+                if (!isMounted) return;
+                
+                // Don't log abort errors as they're expected
+                if (error.name === 'AbortError') {
+                    console.log('Request was aborted (timeout or cleanup)');
+                    return;
+                }
+                
                 console.error('Error fetching fresh user data:', error);
-            }
-
-            if (isMounted) {
-                setUser(userData);
-                setLoading(false);
+                if (error.message === 'Failed to fetch') {
+                    console.log('Cannot connect to server');
+                    setConnectionError(true);
+                }
+                // Don't redirect - keep using cached user data
             }
         };
 
@@ -86,7 +125,7 @@ export default function UserDashboard() {
             }
         });
 
-        // Listen for storage events (when profile is updated in another tab)
+        // Listen for storage events
         const handleStorageChange = (e) => {
             if (e.key === 'user') {
                 console.log('Storage changed, refreshing user data...');
@@ -99,8 +138,18 @@ export default function UserDashboard() {
 
         window.addEventListener('storage', handleStorageChange);
 
+        // Cleanup function
         return () => {
             isMounted = false;
+            // Only abort if controller exists and hasn't been aborted already
+            if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
+                try {
+                    abortControllerRef.current.abort();
+                } catch (e) {
+                    console.log('Error aborting fetch:', e);
+                }
+            }
+            abortControllerRef.current = null;
             unsubscribe();
             window.removeEventListener('storage', handleStorageChange);
         };
@@ -111,16 +160,27 @@ export default function UserDashboard() {
         try {
             const token = getToken();
             if (token) {
-                await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us'}/api/auth/logout`, {
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us';
+                // Use a shorter timeout for logout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
+                await fetch(`${API_URL}/api/auth/logout`, {
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
+                    signal: controller.signal
                 });
+                
+                clearTimeout(timeoutId);
             }
         } catch (error) {
-            console.error('Logout error:', error);
+            // Ignore abort errors for logout
+            if (error.name !== 'AbortError') {
+                console.error('Logout error:', error);
+            }
         } finally {
             clearAuthData();
             console.log('Redirecting to login...');
@@ -161,7 +221,6 @@ export default function UserDashboard() {
 
                     {/* Main Content Skeleton */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Left Column Skeleton */}
                         <div className="lg:col-span-1 space-y-6">
                             <div className="bg-white rounded-2xl p-6 shadow-sm">
                                 <div className="flex items-center gap-4 mb-6">
@@ -178,8 +237,6 @@ export default function UserDashboard() {
                                 </div>
                             </div>
                         </div>
-
-                        {/* Right Column Skeleton */}
                         <div className="lg:col-span-2 space-y-6">
                             <div className="bg-white rounded-2xl p-6 shadow-sm">
                                 <div className="h-6 w-32 bg-gray-200 rounded-lg animate-pulse mb-4"></div>
@@ -194,17 +251,42 @@ export default function UserDashboard() {
             </div>
         );
     }
+
     return (
         <div className="min-h-screen bg-gray-50">
+            {/* Connection Warning Banner */}
+            {connectionError && (
+                <div className="bg-yellow-50 border-b border-yellow-200">
+                    <div className="container mx-auto px-4 py-3">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <span className="text-sm text-yellow-700">
+                                    Using cached data. Unable to connect to server.
+                                </span>
+                            </div>
+                            <button 
+                                onClick={() => window.location.reload()}
+                                className="text-sm text-yellow-700 hover:text-yellow-900 underline"
+                            >
+                                Retry
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="container mx-auto px-4 py-8">
                 <div className="grid grid-cols-12 gap-6">
                     {/* Left Sidebar */}
                     <div className="col-span-12 md:col-span-3">
                         <div className="bg-white rounded-2xl shadow-sm overflow-hidden sticky top-8">
                             {/* Profile Section */}
-                            <div className=" text-center">
+                            <div className="p-6 text-center border-b border-gray-100">
                                 <div className="relative inline-block">
-                                    <div className=" bg-white flex items-center justify-center shadow-lg overflow-hidden">
+                                    <div className="w-24 h-24 mx-auto bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg overflow-hidden">
                                         {user?.avatar ? (
                                             <img
                                                 src={user.avatar}
@@ -214,30 +296,30 @@ export default function UserDashboard() {
                                                     e.target.style.display = 'none';
                                                     const parent = e.target.parentElement;
                                                     if (parent) {
-                                                        parent.innerHTML = `<span class="text-3xl font-bold text-black">${getUserInitials()}</span>`;
+                                                        parent.innerHTML = `<span class="text-3xl font-bold">${getUserInitials()}</span>`;
                                                     }
                                                 }}
                                             />
                                         ) : (
-                                            <span className="text-3xl font-bold text-black">
+                                            <span className="text-3xl font-bold">
                                                 {getUserInitials()}
                                             </span>
                                         )}
                                     </div>
-                                    <div className="absolute right-5 bottom-5 w-6 h-6 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+                                    <div className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
                                 </div>
 
-                                <h3 className="mt-4 text-black font-semibold text-lg">
+                                <h3 className="mt-4 text-gray-900 font-semibold text-lg">
                                     {user?.fullName || user?.name || 'User'}
                                 </h3>
                                 <p className="text-gray-500 text-sm mt-1">
                                     {user?.title || 'Creative Professional'}
                                 </p>
-                                <p className="text-gray-500 text-xs mt-1 opacity-75">
+                                <p className="text-gray-400 text-xs mt-1">
                                     {user?.email || 'user@example.com'}
                                 </p>
 
-                                <div className="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/20 text-black">
+                                <div className="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                     {user?.role === 'admin' ? 'Administrator' : (user?.role || 'User')}
                                 </div>
                             </div>
@@ -249,17 +331,18 @@ export default function UserDashboard() {
                                         key={item.id}
                                         href={item.href}
                                         onClick={() => setActiveTab(item.id)}
-                                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${activeTab === item.id
-                                            ? 'bg-red-50 text-red-700 shadow-sm'
-                                            : 'text-gray-700 hover:bg-gray-50 hover:text-red-600'
-                                            }`}
+                                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
+                                            activeTab === item.id
+                                                ? 'bg-blue-50 text-blue-700 shadow-sm'
+                                                : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                                        }`}
                                     >
                                         <span className="text-xl">{item.icon}</span>
                                         <span className="text-sm font-medium flex-1">
                                             {item.name}
                                         </span>
                                         {activeTab === item.id && (
-                                            <div className="w-1 h-6 bg-red-600 rounded-full"></div>
+                                            <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
                                         )}
                                     </Link>
                                 ))}
@@ -307,7 +390,7 @@ export default function UserDashboard() {
 
                         {/* User Info Card */}
                         <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-6">
-                            <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-red-50 to-indigo-50">
+                            <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
                                 <h2 className="text-lg font-semibold text-gray-900">
                                     Account Information
                                 </h2>
@@ -363,7 +446,7 @@ export default function UserDashboard() {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <button
                                         onClick={() => router.push('/profile')}
-                                        className="p-4 bg-red-50 rounded-xl text-center hover:bg-red-100 transition group"
+                                        className="p-4 bg-blue-50 rounded-xl text-center hover:bg-blue-100 transition group"
                                     >
                                         <div className="text-3xl mb-2">👤</div>
                                         <p className="font-medium text-gray-900">My Profile</p>
