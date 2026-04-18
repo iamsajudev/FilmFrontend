@@ -510,7 +510,7 @@ const Profile = () => {
             )}
 
             {/* Cover Photo Section */}
-            <div className="relative h-80 lg:h-96 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+            <div className="relative h-80 lg:h-96 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 overflow-hidden rounded-2xl">
                 <div className="absolute inset-0 bg-black/30"></div>
                 
                 {(() => {
@@ -520,7 +520,7 @@ const Profile = () => {
                             <img
                                 src={coverSrc}
                                 alt="Cover"
-                                className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                                className="w-full h-full object-cover transition-transform duration-700 hover:scale-105 "
                             />
                         );
                     }
@@ -535,7 +535,7 @@ const Profile = () => {
                     );
                 })()}
                 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent "></div>
 
                 {isEditing && (
                     <button
@@ -601,12 +601,12 @@ const Profile = () => {
                     {/* Left Column - Profile Info */}
                     <div className="lg:col-span-1 space-y-6">
                         {/* Profile Card with Avatar */}
-                        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
+                        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
                             {/* Avatar Section - Centered */}
-                            <div className="relative -mt-16 flex justify-center">
+                            <div className="relative flex justify-center">
                                 <div className="relative group">
                                     <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl opacity-75 blur-md group-hover:opacity-100 transition duration-300"></div>
-                                    <div className="relative w-32 h-32 md:w-36 md:h-36 rounded-2xl border-4 border-white shadow-2xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                                    <div className="relative rounded-2xl border-4 border-white shadow-2xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                                         {isUploading ? (
                                             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
                                                 <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />

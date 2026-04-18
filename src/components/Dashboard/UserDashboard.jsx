@@ -202,9 +202,9 @@ export default function UserDashboard() {
                     <div className="col-span-12 md:col-span-3">
                         <div className="bg-white rounded-2xl shadow-sm overflow-hidden sticky top-8">
                             {/* Profile Section */}
-                            <div className="bg-gradient-to-br from-red-500 to-red-700 p-6 text-center">
+                            <div className=" text-center">
                                 <div className="relative inline-block">
-                                    <div className="w-24 h-24 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg overflow-hidden">
+                                    <div className=" bg-white flex items-center justify-center shadow-lg overflow-hidden">
                                         {user?.avatar ? (
                                             <img
                                                 src={user.avatar}
@@ -214,30 +214,30 @@ export default function UserDashboard() {
                                                     e.target.style.display = 'none';
                                                     const parent = e.target.parentElement;
                                                     if (parent) {
-                                                        parent.innerHTML = `<span class="text-3xl font-bold text-red-600">${getUserInitials()}</span>`;
+                                                        parent.innerHTML = `<span class="text-3xl font-bold text-black">${getUserInitials()}</span>`;
                                                     }
                                                 }}
                                             />
                                         ) : (
-                                            <span className="text-3xl font-bold text-red-600">
+                                            <span className="text-3xl font-bold text-black">
                                                 {getUserInitials()}
                                             </span>
                                         )}
                                     </div>
-                                    <div className="absolute bottom-0 right-0 w-6 h-6 bg-green-500 rounded-full border-2 border-white"></div>
+                                    <div className="absolute right-5 bottom-5 w-6 h-6 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
                                 </div>
 
-                                <h3 className="mt-4 text-white font-semibold text-lg">
+                                <h3 className="mt-4 text-black font-semibold text-lg">
                                     {user?.fullName || user?.name || 'User'}
                                 </h3>
-                                <p className="text-red-100 text-sm mt-1">
+                                <p className="text-gray-500 text-sm mt-1">
                                     {user?.title || 'Creative Professional'}
                                 </p>
-                                <p className="text-red-100 text-xs mt-1 opacity-75">
+                                <p className="text-gray-500 text-xs mt-1 opacity-75">
                                     {user?.email || 'user@example.com'}
                                 </p>
 
-                                <div className="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/20 text-white">
+                                <div className="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/20 text-black">
                                     {user?.role === 'admin' ? 'Administrator' : (user?.role || 'User')}
                                 </div>
                             </div>
@@ -250,8 +250,8 @@ export default function UserDashboard() {
                                         href={item.href}
                                         onClick={() => setActiveTab(item.id)}
                                         className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${activeTab === item.id
-                                                ? 'bg-red-50 text-red-700 shadow-sm'
-                                                : 'text-gray-700 hover:bg-gray-50 hover:text-red-600'
+                                            ? 'bg-red-50 text-red-700 shadow-sm'
+                                            : 'text-gray-700 hover:bg-gray-50 hover:text-red-600'
                                             }`}
                                     >
                                         <span className="text-xl">{item.icon}</span>
