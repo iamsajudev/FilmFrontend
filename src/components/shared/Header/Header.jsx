@@ -3,35 +3,71 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation"; // Required for active state
+import { usePathname } from "next/navigation";
 import AvatarDropdown from "./AvatarDropdown";
+import { getUser, subscribeToUserUpdates } from "@/utils/auth";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [userName, setUserName] = useState("");
+  const [userAvatar, setUserAvatar] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const menuRef = useRef(null);
-  const pathname = usePathname(); // Detects current URL
+  const pathname = usePathname();
 
-  // Get user role from localStorage
+  // Get user data from localStorage and listen for updates
   useEffect(() => {
-    const getUserRole = () => {
+    const loadUserData = () => {
       try {
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-          const userData = JSON.parse(userStr);
+        const userData = getUser();
+        if (userData) {
           const role = userData.role || userData.userType || 'user';
+          const name = userData.fullName || userData.name || '';
+          const avatar = userData.avatar || userData.profileImage || '';
+          
           setUserRole(role);
+          setUserName(name);
+          setUserAvatar(avatar);
         }
       } catch (error) {
-        console.error('Error getting user role:', error);
+        console.error('Error getting user data:', error);
         setUserRole('user');
       } finally {
         setIsLoading(false);
       }
     };
 
-    getUserRole();
+    loadUserData();
+
+    // Subscribe to real-time user profile updates
+    const unsubscribe = subscribeToUserUpdates((updatedUser) => {
+      console.log('Header received user update:', updatedUser);
+      if (updatedUser) {
+        const role = updatedUser.role || updatedUser.userType || 'user';
+        const name = updatedUser.fullName || updatedUser.name || '';
+        const avatar = updatedUser.avatar || updatedUser.profileImage || '';
+        
+        setUserRole(role);
+        setUserName(name);
+        setUserAvatar(avatar);
+      }
+    });
+
+    // Listen for storage events (when profile is updated in another tab)
+    const handleStorageChange = (e) => {
+      if (e.key === 'user') {
+        console.log('Storage changed in header, reloading user data...');
+        loadUserData();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   // Close menu when clicking outside
@@ -79,27 +115,6 @@ const Header = () => {
     return '/dashboard';
   };
 
-  // Get projects URL based on user role
-  const getProjectsUrl = () => {
-    if (userRole === 'admin' || userRole === 'Administrator') {
-      return '/admin/projects';
-    }
-    return '/project';
-  };
-
-  // Get submissions URL based on user role
-  // const getSubmissionsUrl = () => {
-  //   if (userRole === 'admin' || userRole === 'Administrator') {
-  //     return '/admin/submissions';
-  //   }
-  //   return '/submissions';
-  // };
-
-  // Get users URL (admin only)
-  const getUsersUrl = () => {
-    return '/admin/all-users';
-  };
-
   // Centralized Link Configuration based on role
   const getNavLinks = () => {
     const isAdmin = userRole === 'admin' || userRole === 'Administrator';
@@ -109,6 +124,7 @@ const Header = () => {
         { name: "Dashboard", href: "/admin/dashboard" },
         { name: "Users", href: "/admin/all-users" },
         { name: "Submissions", href: "/admin/all-submissions" },
+        { name: "Projects", href: "/admin/projects" },
       ];
     }
     
@@ -117,12 +133,23 @@ const Header = () => {
       { name: "Dashboard", href: "/dashboard" },
       { name: "My Projects", href: "/projects" },
       { name: "Submissions", href: "/submissions" },
+      { name: "Profile", href: "/profile" },
     ];
   };
 
   const navLinks = getNavLinks();
 
-  // Show loading state or minimal header while checking role
+  // Get user initials for avatar fallback
+  const getUserInitials = () => {
+    if (!userName) return 'U';
+    const parts = userName.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return userName.substring(0, 2).toUpperCase();
+  };
+
+  // Show loading state
   if (isLoading) {
     return (
       <header className="flex shadow-md py-4 px-4 sm:px-10 bg-white min-h-[70px] tracking-wide relative z-50">
@@ -139,6 +166,7 @@ const Header = () => {
           </Link>
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>
           </div>
         </div>
       </header>
@@ -202,6 +230,21 @@ const Header = () => {
             </button>
           </div>
 
+          {/* User Profile Preview for Mobile */}
+          <div className="px-6 pt-4 pb-2 lg:hidden flex items-center gap-3 border-b border-gray-100">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold overflow-hidden">
+              {userAvatar ? (
+                <img src={userAvatar} alt={userName} className="w-full h-full object-cover" />
+              ) : (
+                <span>{getUserInitials()}</span>
+              )}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-900">{userName || 'User'}</p>
+              <p className="text-xs text-gray-500">{userRole === 'admin' ? 'Administrator' : 'Member'}</p>
+            </div>
+          </div>
+
           {/* Admin Badge for Mobile */}
           {(userRole === 'admin' || userRole === 'Administrator') && (
             <div className="px-6 pt-4 pb-2 lg:hidden">
@@ -214,12 +257,8 @@ const Header = () => {
           {/* Navigation Links */}
           <ul className="lg:flex lg:gap-x-2 max-lg:p-6 max-lg:space-y-2">
             {navLinks.map((link) => {
-              // Logic to check if link is active
               const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
-              
-              // Special handling for admin dashboard
               const isAdminDashboardActive = userRole === 'admin' && pathname === '/admin';
-              
               const activeCheck = isActive || isAdminDashboardActive;
 
               return (
@@ -270,6 +309,13 @@ const Header = () => {
 
         {/* Action Buttons */}
         <div className="flex items-center space-x-3">
+          {/* Welcome Text for Desktop */}
+          {userName && (
+            <div className="hidden lg:block text-sm text-gray-600">
+              <span className="font-medium">Welcome,</span> {userName.split(' ')[0]}
+            </div>
+          )}
+          
           {/* Admin Badge for Desktop */}
           {(userRole === 'admin' || userRole === 'Administrator') && (
             <div className="hidden lg:block">
@@ -279,7 +325,8 @@ const Header = () => {
             </div>
           )}
           
-          <AvatarDropdown />
+          {/* Avatar Dropdown Component */}
+          <AvatarDropdown userAvatar={userAvatar} userName={userName} userInitials={getUserInitials()} />
 
           {/* Mobile Hamburger Toggle */}
           <button
