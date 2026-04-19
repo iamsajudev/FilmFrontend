@@ -66,9 +66,7 @@
       "remotePatterns": [
         {
           "protocol": "https",
-          "hostname": "server.nybff.us",
-          "port": "",
-          "pathname": "/**"
+          "hostname": "server.nybff.us"
         }
       ],
       "qualities": [

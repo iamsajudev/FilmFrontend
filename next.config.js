@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    // API Proxy
     async rewrites() {
         return [
             {
@@ -9,8 +8,6 @@ const nextConfig = {
             },
         ];
     },
-
-    // Image configuration
     images: {
         remotePatterns: [
             {
@@ -18,19 +15,10 @@ const nextConfig = {
                 hostname: 'server.nybff.us',
             },
         ],
-        unoptimized: false,
     },
-
-    // For Hostinger VPS
+    // ⚠️ CRITICAL: Remove this line if it exists
+    // turbopack: {},
     output: 'standalone',
-    
-    // Disable turbopack in production
-    ...(process.env.NODE_ENV === 'development' && { turbopack: {} }),
-    
-    // Ensure static assets are served correctly
-    assetPrefix: process.env.NODE_ENV === 'production' 
-        ? 'https://portal.nybff.us' 
-        : '',
 };
 
 module.exports = nextConfig;

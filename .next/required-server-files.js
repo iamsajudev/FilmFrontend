@@ -66,9 +66,7 @@ self.__SERVER_FILES_MANIFEST={
       "remotePatterns": [
         {
           "protocol": "https",
-          "hostname": "server.nybff.us",
-          "port": "",
-          "pathname": "/**"
+          "hostname": "server.nybff.us"
         }
       ],
       "qualities": [
