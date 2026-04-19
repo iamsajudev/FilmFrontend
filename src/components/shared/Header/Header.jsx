@@ -141,8 +141,8 @@ const Header = () => {
         { name: "Dashboard", href: "/admin/dashboard" },
         { name: "Users", href: "/admin/all-users" },
         { name: "Submissions", href: "/admin/all-submissions" },
-        { name: "Projects", href: "/admin/projects" },
-        { name: "Settings", href: "/admin/settings" },
+        // { name: "Projects", href: "/admin/projects" },
+        { name: "Settings", href: "/settings" },
       ];
     }
     

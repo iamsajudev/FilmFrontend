@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 
 const UserTable = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -12,23 +13,11 @@ const UserTable = () => {
     const [selectedStatus, setSelectedStatus] = useState("all");
     const [currentUser, setCurrentUser] = useState(null);
     const [deletingId, setDeletingId] = useState(null);
+    const [updatingStatus, setUpdatingStatus] = useState(null);
+
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us';
 
     // Fetch users from API
-    useEffect(() => {
-        fetchUsers();
-
-        // Get current logged-in user
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            try {
-                const userData = JSON.parse(userStr);
-                setCurrentUser(userData);
-            } catch (error) {
-                console.error("Error parsing user data:", error);
-            }
-        }
-    }, []);
-
     const fetchUsers = async () => {
         try {
             setLoading(true);
@@ -40,8 +29,7 @@ const UserTable = () => {
                 throw new Error("No authentication token found. Please login again.");
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us';
-            const response = await fetch(`${API_URL}/api/users`, {
+            const response = await fetch(`${API_URL}/api/admin/users`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -51,6 +39,9 @@ const UserTable = () => {
             if (!response.ok) {
                 if (response.status === 401) {
                     throw new Error("Session expired. Please login again.");
+                }
+                if (response.status === 403) {
+                    throw new Error("Access denied. Admin only.");
                 }
                 throw new Error(`Failed to fetch users: ${response.status}`);
             }
@@ -74,15 +65,33 @@ const UserTable = () => {
         } catch (error) {
             console.error("Error fetching users:", error);
             setError(error.message);
+            toast.error(error.message);
         } finally {
             setLoading(false);
         }
     };
 
+    useEffect(() => {
+        fetchUsers();
+
+        // Get current logged-in user
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                // Decode token to get user info
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const decoded = JSON.parse(atob(base64));
+                setCurrentUser(decoded);
+            } catch (error) {
+                console.error("Error decoding token:", error);
+            }
+        }
+    }, []);
+
     const handleDeleteUser = async (userId) => {
         if (!userId) {
-            console.error("No user ID provided");
-            alert("Error: User ID is missing");
+            toast.error("User ID is missing");
             return;
         }
 
@@ -98,9 +107,7 @@ const UserTable = () => {
                 throw new Error("No authentication token found. Please login again.");
             }
 
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us';
-
-            const response = await fetch(`${API_URL}/api/users/${userId}`, {
+            const response = await fetch(`${API_URL}/api/admin/users/${userId}`, {
                 method: "DELETE",
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -108,23 +115,113 @@ const UserTable = () => {
                 }
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                throw new Error(`Failed to delete user: ${response.status}`);
+                throw new Error(data.message || `Failed to delete user: ${response.status}`);
             }
 
             // Remove user from state
             setUsers(prevUsers => prevUsers.filter(user => {
-                const userIdField = user.id || user._id || user.userId;
+                const userIdField = user._id || user.id;
                 return userIdField !== userId;
             }));
 
-            alert("User deleted successfully");
+            toast.success(data.message || "User deleted successfully");
 
         } catch (error) {
             console.error("Error deleting user:", error);
-            alert(error.message || "Failed to delete user. Please try again.");
+            toast.error(error.message || "Failed to delete user. Please try again.");
         } finally {
             setDeletingId(null);
+        }
+    };
+
+    const handleUpdateStatus = async (userId, currentStatus) => {
+        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+        
+        if (!confirm(`Are you sure you want to ${newStatus} this user?`)) {
+            return;
+        }
+
+        try {
+            setUpdatingStatus(userId);
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error("No authentication token found.");
+            }
+
+            const response = await fetch(`${API_URL}/api/admin/users/${userId}/status`, {
+                method: "PATCH",
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ isActive: newStatus === 'active' })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to update status");
+            }
+
+            // Update user in state
+            setUsers(prevUsers => prevUsers.map(user => {
+                const userIdField = user._id || user.id;
+                if (userIdField === userId) {
+                    return { ...user, isActive: newStatus === 'active', status: newStatus };
+                }
+                return user;
+            }));
+
+            toast.success(`User ${newStatus}d successfully`);
+
+        } catch (error) {
+            console.error("Error updating status:", error);
+            toast.error(error.message || "Failed to update user status");
+        } finally {
+            setUpdatingStatus(null);
+        }
+    };
+
+    const handleUpdateRole = async (userId, newRole) => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error("No authentication token found.");
+            }
+
+            const response = await fetch(`${API_URL}/api/admin/users/${userId}/role`, {
+                method: "PATCH",
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ role: newRole })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to update role");
+            }
+
+            // Update user in state
+            setUsers(prevUsers => prevUsers.map(user => {
+                const userIdField = user._id || user.id;
+                if (userIdField === userId) {
+                    return { ...user, role: newRole };
+                }
+                return user;
+            }));
+
+            toast.success(`User role updated to ${newRole}`);
+
+        } catch (error) {
+            console.error("Error updating role:", error);
+            toast.error(error.message || "Failed to update user role");
         }
     };
 
@@ -142,10 +239,10 @@ const UserTable = () => {
                 userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 userEmail.toLowerCase().includes(searchTerm.toLowerCase());
 
-            const userRole = user.role || user.userType || 'user';
+            const userRole = user.role || 'user';
             const matchesRole = selectedRole === "all" || userRole === selectedRole;
 
-            const userStatus = user.status || (user.isActive ? 'active' : 'inactive');
+            const userStatus = user.isActive !== undefined ? (user.isActive ? 'active' : 'inactive') : 'active';
             const matchesStatus = selectedStatus === "all" || userStatus === selectedStatus;
 
             return matchesSearch && matchesRole && matchesStatus;
@@ -154,26 +251,20 @@ const UserTable = () => {
 
     // Get user ID from different possible field names
     const getUserId = (user) => {
-        return user.id || user._id || user.userId;
+        return user._id || user.id;
     };
 
-    // Get profile image with base64 support
+    // Get profile image
     const getProfileImage = (user) => {
-        // Check for profileImage (could be base64 or URL)
         if (user.profileImage) {
-            // If it's a base64 string, use it directly
-            if (user.profileImage.startsWith('data:image')) {
+            if (user.profileImage.startsWith('data:image') || user.profileImage.startsWith('http')) {
                 return user.profileImage;
             }
-            // If it's a URL
-            return user.profileImage;
         }
-        // Check for avatar field
         if (user.avatar) {
-            if (user.avatar.startsWith('data:image')) {
+            if (user.avatar.startsWith('data:image') || user.avatar.startsWith('http')) {
                 return user.avatar;
             }
-            return user.avatar;
         }
         return null;
     };
@@ -271,6 +362,7 @@ const UserTable = () => {
                             <option value="all">All Roles</option>
                             <option value="admin">Admin</option>
                             <option value="user">User</option>
+                            <option value="moderator">Moderator</option>
                         </select>
                         <select
                             value={selectedStatus}
@@ -281,6 +373,15 @@ const UserTable = () => {
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
+                        <button
+                            onClick={fetchUsers}
+                            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+                            title="Refresh users"
+                        >
+                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -303,9 +404,9 @@ const UserTable = () => {
                                     const userId = getUserId(user);
                                     const userName = user.name || user.fullName || user.username || 'Unknown';
                                     const userEmail = user.email || '';
-                                    const userRole = user.role || user.userType || 'user';
-                                    const userStatus = user.status || (user.isActive ? 'active' : 'inactive');
-                                    const joinDate = user.createdAt || user.joinDate || user.registeredAt;
+                                    const userRole = user.role || 'user';
+                                    const userStatus = user.isActive !== undefined ? (user.isActive ? 'active' : 'inactive') : 'active';
+                                    const joinDate = user.createdAt || user.joinDate;
                                     const isCurrentUser = currentUser && (currentUser.id === userId || currentUser._id === userId);
                                     const profileImage = getProfileImage(user);
 
@@ -313,22 +414,20 @@ const UserTable = () => {
                                         <tr key={userId} className="hover:bg-gray-50 transition">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    {/* Profile Image with Base64 Support */}
                                                     {profileImage ? (
-                                                        <div className="w-10 h-10 rounded-full overflow-hidden">
+                                                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
                                                             <img
                                                                 src={profileImage}
                                                                 alt={userName}
                                                                 className="w-full h-full object-cover"
                                                                 onError={(e) => {
-                                                                    // Show fallback if image fails to load
                                                                     e.target.style.display = 'none';
-                                                                    // Fallback to initials
+                                                                    e.target.parentElement.innerHTML = `<div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-medium">${getInitials(userName)}</div>`;
                                                                 }}
                                                             />
                                                         </div>
                                                     ) : (
-                                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white">
+                                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
                                                             {getInitials(userName)}
                                                         </div>
                                                     )}
@@ -337,20 +436,46 @@ const UserTable = () => {
                                             </td>
                                             <td className="px-6 py-4 text-gray-600">{userEmail}</td>
                                             <td className="px-6 py-4">
-                                                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${userRole === "admin"
-                                                        ? "bg-purple-100 text-purple-700"
-                                                        : "bg-blue-100 text-blue-700"
-                                                    }`}>
-                                                    {userRole}
-                                                </span>
+                                                {isCurrentUser ? (
+                                                    <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+                                                        {userRole} (You)
+                                                    </span>
+                                                ) : (
+                                                    <select
+                                                        value={userRole}
+                                                        onChange={(e) => handleUpdateRole(userId, e.target.value)}
+                                                        className="px-2 py-1 text-xs text-black font-medium rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+                                                    >
+                                                        <option value="user">User</option>
+                                                        <option value="moderator">Moderator</option>
+                                                        <option value="admin">Admin</option>
+                                                    </select>
+                                                )}
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${userStatus === "active"
-                                                        ? "bg-green-100 text-green-700"
-                                                        : "bg-red-100 text-red-700"
-                                                    }`}>
-                                                    {userStatus}
-                                                </span>
+                                                {isCurrentUser ? (
+                                                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${userStatus === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                                                        {userStatus}
+                                                    </span>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handleUpdateStatus(userId, userStatus)}
+                                                        disabled={updatingStatus === userId}
+                                                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full transition ${userStatus === "active"
+                                                                ? "bg-green-100 text-green-700 hover:bg-green-200"
+                                                                : "bg-red-100 text-red-700 hover:bg-red-200"
+                                                            } ${updatingStatus === userId ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                                                    >
+                                                        {updatingStatus === userId ? (
+                                                            <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                        ) : (
+                                                            userStatus
+                                                        )}
+                                                    </button>
+                                                )}
                                             </td>
                                             <td className="px-6 py-4 text-gray-600">
                                                 {joinDate ? new Date(joinDate).toLocaleDateString() : 'N/A'}
@@ -368,10 +493,7 @@ const UserTable = () => {
                                                     <button
                                                         onClick={() => handleDeleteUser(userId)}
                                                         disabled={isCurrentUser || deletingId === userId}
-                                                        className={`text-red-600 p-1 transition ${isCurrentUser || deletingId === userId
-                                                                ? "opacity-50 cursor-not-allowed"
-                                                                : "hover:text-red-700"
-                                                            }`}
+                                                        className={`text-red-600 p-1 transition ${isCurrentUser || deletingId === userId ? "opacity-50 cursor-not-allowed" : "hover:text-red-700"}`}
                                                         title={isCurrentUser ? "You cannot delete your own account" : "Delete user"}
                                                     >
                                                         {deletingId === userId ? (
