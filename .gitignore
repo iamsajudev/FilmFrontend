@@ -14,7 +14,6 @@
 /coverage
 
 # next.js - DO NOT ignore .next for production deployment
-# /.next/  ← COMMENTED OUT - We NEED this folder for Hostinger
 # /out/    ← Keep commented if using standalone output
 
 # production

@@ -10,25 +10,27 @@ const nextConfig = {
         ];
     },
 
-    // ✅ Updated image configuration (replaces deprecated `domains`)
+    // Image configuration
     images: {
         remotePatterns: [
             {
                 protocol: 'https',
                 hostname: 'server.nybff.us',
-                port: '',
-                pathname: '/**',
             },
         ],
         unoptimized: false,
     },
 
-    // ❌ Remove this line completely
-    // swcMinify: true,
-
-    // ✅ Keep these options
+    // For Hostinger VPS
     output: 'standalone',
-    compress: true,
+    
+    // Disable turbopack in production
+    ...(process.env.NODE_ENV === 'development' && { turbopack: {} }),
+    
+    // Ensure static assets are served correctly
+    assetPrefix: process.env.NODE_ENV === 'production' 
+        ? 'https://portal.nybff.us' 
+        : '',
 };
 
 module.exports = nextConfig;
