@@ -2,10 +2,16 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
@@ -29,7 +35,13 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts",
     "**/*.ts",
-    "**/*.tsx"
-, "src/app/(dashboard)/contact/page.jsx", "src/app/(dashboard)/admin/all-users/edit/[id]/page.jsx"  ],
-  "exclude": ["node_modules"]
+    "**/*.tsx",
+    "src/app/(dashboard)/contact/page.jsx",
+    "src/app/(dashboard)/admin/all-users/edit/[id]/page.jsx",
+    "out/types/**/*.ts",
+    "out/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -1,24 +1,34 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // API Proxy
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: "https://server.nybff.us/api/:path*",
-      },
-    ];
-  },
+    // API Proxy
+    async rewrites() {
+        return [
+            {
+                source: '/api/:path*',
+                destination: 'https://server.nybff.us/api/:path*',
+            },
+        ];
+    },
 
-  // Static export configuration
-  output: "export",
-  images: {
-    unoptimized: true, // Required for static export
-  },
-  trailingSlash: true,
+    // ✅ Updated image configuration (replaces deprecated `domains`)
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'server.nybff.us',
+                port: '',
+                pathname: '/**',
+            },
+        ],
+        unoptimized: false,
+    },
 
-  // Disable server features for static export
-  distDir: "out",
+    // ❌ Remove this line completely
+    // swcMinify: true,
+
+    // ✅ Keep these options
+    output: 'standalone',
+    compress: true,
 };
 
 module.exports = nextConfig;
