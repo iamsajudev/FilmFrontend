@@ -1,0 +1,23 @@
+{
+  "/(dashboard)/admin/all-submissions/page": "/admin/all-submissions",
+  "/(dashboard)/admin/all-users/create/page": "/admin/all-users/create",
+  "/(dashboard)/admin/all-users/edit/[id]/page": "/admin/all-users/edit/[id]",
+  "/(dashboard)/admin/all-users/page": "/admin/all-users",
+  "/(dashboard)/admin/dashboard/page": "/admin/dashboard",
+  "/(dashboard)/admin/page": "/admin",
+  "/(dashboard)/contact/page": "/contact",
+  "/(dashboard)/dashboard/page": "/dashboard",
+  "/(dashboard)/privacy/page": "/privacy",
+  "/(dashboard)/profile/page": "/profile",
+  "/(dashboard)/projects/drop-project/page": "/projects/drop-project",
+  "/(dashboard)/projects/page": "/projects",
+  "/(dashboard)/settings/page": "/settings",
+  "/(dashboard)/submissions/page": "/submissions",
+  "/(dashboard)/terms/page": "/terms",
+  "/(main)/login/page": "/login",
+  "/(main)/page": "/",
+  "/(main)/register/page": "/register",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico"
+}
