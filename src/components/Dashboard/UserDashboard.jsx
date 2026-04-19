@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getToken, getUser, clearAuthData, subscribeToUserUpdates, getUserInitials } from '@/utils/auth';
+import Image from 'next/image';
 
 export default function UserDashboard() {
     const router = useRouter();
@@ -15,7 +16,7 @@ export default function UserDashboard() {
 
     useEffect(() => {
         let isMounted = true;
-        
+
         // Create abort controller for this effect
         abortControllerRef.current = new AbortController();
 
@@ -45,7 +46,7 @@ export default function UserDashboard() {
             // Try to fetch fresh user data from API (non-blocking)
             try {
                 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.nybff.us';
-                
+
                 // Add timeout to fetch
                 const timeoutId = setTimeout(() => {
                     if (abortControllerRef.current && isMounted) {
@@ -90,7 +91,7 @@ export default function UserDashboard() {
 
                     // Update localStorage
                     localStorage.setItem('user', JSON.stringify(updatedUserData));
-                    
+
                     if (isMounted) {
                         setUser(updatedUserData);
                         setConnectionError(false);
@@ -99,13 +100,13 @@ export default function UserDashboard() {
                 }
             } catch (error) {
                 if (!isMounted) return;
-                
+
                 // Don't log abort errors as they're expected
                 if (error.name === 'AbortError') {
                     console.log('Request was aborted (timeout or cleanup)');
                     return;
                 }
-                
+
                 console.error('Error fetching fresh user data:', error);
                 if (error.message === 'Failed to fetch') {
                     console.log('Cannot connect to server');
@@ -164,7 +165,7 @@ export default function UserDashboard() {
                 // Use a shorter timeout for logout
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 5000);
-                
+
                 await fetch(`${API_URL}/api/auth/logout`, {
                     method: 'POST',
                     headers: {
@@ -173,7 +174,7 @@ export default function UserDashboard() {
                     },
                     signal: controller.signal
                 });
-                
+
                 clearTimeout(timeoutId);
             }
         } catch (error) {
@@ -267,7 +268,7 @@ export default function UserDashboard() {
                                     Using cached data. Unable to connect to server.
                                 </span>
                             </div>
-                            <button 
+                            <button
                                 onClick={() => window.location.reload()}
                                 className="text-sm text-yellow-700 hover:text-yellow-900 underline"
                             >
@@ -286,7 +287,7 @@ export default function UserDashboard() {
                             {/* Profile Section */}
                             <div className="p-6 text-center border-b border-gray-100">
                                 <div className="relative inline-block">
-                                    <div className="w-24 h-24 mx-auto bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg overflow-hidden">
+                                    <div className="w-24 h-24 mx-auto bg-linear-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg overflow-hidden">
                                         {user?.avatar ? (
                                             <img
                                                 src={user.avatar}
@@ -296,7 +297,7 @@ export default function UserDashboard() {
                                                     e.target.style.display = 'none';
                                                     const parent = e.target.parentElement;
                                                     if (parent) {
-                                                        parent.innerHTML = `<span class="text-3xl font-bold">${getUserInitials()}</span>`;
+                                                        parent.innerHTML = `<span className="text-3xl font-bold">${getUserInitials()}</span>`;
                                                     }
                                                 }}
                                             />
@@ -331,11 +332,10 @@ export default function UserDashboard() {
                                         key={item.id}
                                         href={item.href}
                                         onClick={() => setActiveTab(item.id)}
-                                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
-                                            activeTab === item.id
+                                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${activeTab === item.id
                                                 ? 'bg-blue-50 text-blue-700 shadow-sm'
                                                 : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
-                                        }`}
+                                            }`}
                                     >
                                         <span className="text-xl">{item.icon}</span>
                                         <span className="text-sm font-medium flex-1">
@@ -376,15 +376,25 @@ export default function UserDashboard() {
                                         Here's what's happening with your account today.
                                     </p>
                                 </div>
-                                {user?.avatar && (
-                                    <div className="w-16 h-16 rounded-full overflow-hidden hidden md:block">
-                                        <img
-                                            src={user.avatar}
-                                            alt={user.name}
-                                            className="w-full h-full object-cover"
-                                        />
+                                <div>
+                                    {/* {user?.avatar && (
+                                        <div className="w-16 h-16 rounded-full overflow-hidden hidden md:block">
+                                            <img
+                                                src={user.avatar}
+                                                alt={user.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    )} */}
+                                    <div>
+                                        <Link
+                                            href="/projects/drop-project"
+                                            className="bg-[#1EB97A] hover:bg-[#189663] text-white px-6 py-2.5 rounded-md font-semibold flex items-center gap-2 transition-all shadow-sm w-fit"
+                                        >
+                                            <span className="text-xl">+</span> Add New Project
+                                        </Link>
                                     </div>
-                                )}
+                                </div>
                             </div>
                         </div>
 

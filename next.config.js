@@ -1,15 +1,17 @@
-// next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    allowedDevOrigins: ['172.26.48.1'],
+    // API Proxy
     async rewrites() {
         return [
             {
                 source: '/api/:path*',
-                destination: 'https://server.nybff.us/api/:path*', // Proxy to your backend
+                destination: 'https://server.nybff.us/api/:path*',
             },
         ];
     },
-}
+    
+    // Required for Next.js 16
+    turbopack: {},
+};
 
 module.exports = nextConfig;
