@@ -22,7 +22,7 @@ const RecentActivities = React.memo(({ activities }) => {
         </h2>
       </div>
       
-      <div className="divide-y divide-gray-100 max-h-[500px] overflow-y-auto">
+      <div className="divide-y divide-gray-100 max-h-125 overflow-y-auto">
         <AnimatePresence mode="wait">
           {displayActivities.length > 0 ? (
             displayActivities.map((activity, index) => (
@@ -33,7 +33,7 @@ const RecentActivities = React.memo(({ activities }) => {
                 transition={{ delay: index * 0.05 }}
                 className="flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors"
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm flex-shrink-0 ${
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm shrink-0 ${
                   activity.type === "submission" ? "bg-green-100" :
                   activity.type === "user" ? "bg-blue-100" : 
                   activity.type === "project" ? "bg-purple-100" : "bg-gray-100"

@@ -321,7 +321,8 @@ const CountrySelect = ({ value, onChange, placeholder = "Select a country", requ
     );
 };
 
-// Helper function to get country flag emoji
+
+// Helper function to get country flag emoji from country code
 const getCountryFlag = (countryCode) => {
     const codePoints = countryCode
         .toUpperCase()
