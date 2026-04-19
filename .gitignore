@@ -13,9 +13,9 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
+# next.js - DO NOT ignore .next for production deployment
+# /.next/  ← COMMENTED OUT - We NEED this folder for Hostinger
+# /out/    ← Keep commented if using standalone output
 
 # production
 /build
@@ -31,7 +31,10 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env*.local
+.env.development
+.env.test
+# But you might want to commit .env.production with public variables
 
 # vercel
 .vercel
@@ -39,3 +42,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini

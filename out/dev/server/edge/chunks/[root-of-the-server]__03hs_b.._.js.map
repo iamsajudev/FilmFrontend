@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 16, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/middleware.js"],"sourcesContent":["// middleware.js - Simplified version (mostly disabled)\r\nimport { NextResponse } from \"next/server\";\r\n\r\nexport function middleware(request) {\r\n  // Let all requests through - client-side auth handles protection\r\n  return NextResponse.next();\r\n}\r\n\r\nexport const config = {\r\n  matcher: [],\r\n};\r\n"],"names":["middleware","request","next","config","matcher"],"mappings":";;;;;;AAAA,uDAAuD;AACvD;AAAA;;AAEO,SAASA,WAAWC,OAAO;IAChC,iEAAiE;IACjE,OAAO,6MAAY,CAACC,IAAI;AAC1B;AAEO,MAAMC,SAAS;IACpBC,SAAS,EAAE;AACb"}}]
+}
