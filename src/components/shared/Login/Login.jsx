@@ -360,7 +360,7 @@ const Login = () => {
                                 {/* Main Image */}
                                 <div className="relative w-full">
                                     <Image
-                                        src="/assets/login.jpg"
+                                        src="/assets/login.png"
                                         alt="Login Illustration"
                                         width={600}
                                         height={400}
